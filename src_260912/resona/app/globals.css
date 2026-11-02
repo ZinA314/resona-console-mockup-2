@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/*
+ * 시각 언어. docs/03-screens.md 2절.
+ * 공연 콘솔이므로 어두운 배경을 전제로 합니다. 음악에서 온 값은 흰색 계열,
+ * 관객에서 온 값은 청록색으로 그립니다.
+ */
+:root {
+  --void: #000000;    /* 무대 배경 */
+  --panel: #0a0a0a;   /* 패널 바탕 */
+  --panel2: #111110;  /* 패널 안쪽 구획 */
+  --rule: #222220;    /* 경계선 */
+  --bone: #e8e4dc;    /* 기본 글자 */
+  --dim: #6e6b64;     /* 보조 글자 */
+  --alert: #ff2a00;   /* 지금 일어나는 일 (비트, 온셋, 경고) */
+  --cyan: #7fd7d0;    /* 관객에서 온 값 */
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-panel: var(--panel);
+  --color-panel2: var(--panel2);
+  --color-rule: var(--rule);
+  --color-bone: var(--bone);
+  --color-dim: var(--dim);
+  --color-alert: var(--alert);
+  --color-cyan: var(--cyan);
+
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  --font-condensed: var(--font-barlow-condensed), var(--font-plex-mono), system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  overscroll-behavior: none;
+}
+
+/* 모서리는 둥글리지 않습니다. */
+button,
+input,
+select {
+  border-radius: 0;
+}
+
+/* 모든 조작 요소에 키보드 초점이 보여야 합니다. */
+:focus-visible {
+  outline: 1px solid var(--bone);
+  outline-offset: 1px;
+}
+
+::selection {
+  background: var(--bone);
+  color: var(--void);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+}
