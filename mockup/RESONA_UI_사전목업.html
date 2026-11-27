@@ -109,7 +109,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
 .lab{font-family:var(--cond);font-weight:700;font-size:20px;letter-spacing:.14em;padding:0 8px;color:#000}
 .rat{background:var(--panel2);border:1px solid var(--rule);padding:7px 8px;line-height:1.5;color:#cfc8bd;font-size:10px}
 .rat b{color:var(--alert);font-weight:500}.rat em{color:var(--cyan);font-style:normal}
-.fx{display:grid;grid-template-columns:78px 1fr 30px;gap:6px;align-items:center;padding:3px 0}
+.fx{display:grid;grid-template-columns:78px 1fr 34px;gap:6px;align-items:center;padding:3px 0}
 .fx .n{display:flex;flex-direction:column;line-height:1.15;cursor:pointer}.fx .n b{font-family:var(--cond);font-weight:600;letter-spacing:.1em;font-size:13px}
 .fx .n small{color:var(--dim);font-size:8.5px}
 .fx.off .n b{color:var(--dim2);text-decoration:line-through}.fx.off{opacity:.5}
@@ -170,7 +170,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
     <div class="stat"><span class="cap">BAR · BEAT</span><b id="sBar">1·1</b></div>
     <div class="stat"><span class="cap">SECTION</span><b id="sSec">—</b></div>
     <div class="sp"></div>
-    <button class="pill" id="pMidi"><span class="led" id="ledMidi"></span>ROTO-CONTROL <span id="midiTxt">SIM</span></button>
+    <button class="pill" id="pMidi"><span class="led" id="ledMidi"></span><span id="midiDev">ROTO-CONTROL</span> <span id="midiTxt">SIM</span></button>
     <button class="pill" id="pMic"><span class="led" id="ledMic"></span>MIC</button>
     <button class="pill" id="pAudio"><span class="led" id="ledAud"></span><span id="audTxt">AUDIO</span></button>
     <button class="pill rec" id="pRec"><span class="led" id="ledRec"></span><span id="recTxt">● REC</span></button>
@@ -259,7 +259,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
     <section class="pn">
       <h3><em>08</em><span class="cap">LIGHT · STAGE</span></h3>
       <div class="row" style="margin-top:0"><label>무빙 패턴</label><select id="patSel"></select></div>
-      <div class="row"><label>카메라 샷</label><select id="shotSel"><option value="">고정</option><option value="drone">드론</option><option value="crane">크레인</option><option value="dolly">런웨이 달리</option><option value="pov">객석 시점</option><option value="close">보컬 클로즈업</option></select></div>
+      <div class="row"><label>카메라 샷</label><select id="shotSel"><option value="">고정</option><option value="drone">드론</option><option value="crane">크레인</option><option value="dolly">런웨이 달리</option><option value="pov">객석 시점</option><option value="close">보컬 클로즈업</option><option value="manual">직접 조절 (노브 D)</option></select></div>
       <div class="row"><label>응원봉</label><div class="seg" id="crowdSeg"><button data-k="song">곡 색</button><button data-k="auto">오토 연출</button></div></div>
       <div class="row"><label>자막 모션</label><div class="seg" id="lyMoSec"><button data-k="inherit">상속</button><button data-k="basic">BASIC</button><button data-k="scan">SCAN</button><button data-k="stack">STACK</button></div></div>
       <div class="row"><label>인물 합성</label><div class="seg" id="camSecSeg"><button data-k="1">이 구간 ON</button><button data-k="0">OFF</button></div></div>
@@ -296,12 +296,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
       <div id="tl"><canvas id="tlc"></canvas></div>
     </div>
     <div id="roto">
-      <h3><em class="cap" style="font-size:20px;font-weight:700;color:var(--dim2)">09</em><span class="cap" style="color:var(--bone)">ROTO-CONTROL · 8 KNOB × 2 BANK / 16 PAD</span><span class="cap" style="margin-left:auto;text-transform:none;font-family:var(--mono);font-weight:400;font-size:9px" id="rotoSt">SIM · 모터 피드백</span></h3>
+      <h3><em class="cap" style="font-size:20px;font-weight:700;color:var(--dim2)">09</em><span class="cap" style="color:var(--bone)">ROTO-CONTROL · 8 KNOB × 4 BANK / 16 PAD</span><span class="cap" style="margin-left:auto;text-transform:none;font-family:var(--mono);font-weight:400;font-size:9px" id="rotoSt">SIM · 모터 피드백</span></h3>
       <div class="dev">
         <div class="knobs" id="knobs"></div>
         <div class="btns" id="pads"></div>
       </div>
-      <div class="mots" title="노브 = 선택 섹션의 값 · 섹션이 바뀌면 모터가 저장값으로 이동 · 단축키 B = 노브 뱅크"><span class="cap">KNOB</span><div class="seg" id="kbBank"><button data-b="A" class="on">A · FX</button><button data-b="B">B · LED 4</button></div><span class="cap">PAD</span><div class="seg" id="pdBank"><button data-p="0" class="on">S1–8</button><button data-p="8">S9–16</button></div></div>
+      <div class="mots" title="노브 = 선택 섹션의 값 · 섹션이 바뀌면 모터가 저장값으로 이동 · 단축키 B = 다음 노브 뱅크"><span class="cap">KNOB</span><div class="seg" id="kbBank"><button data-b="A" class="on">A · FX</button><button data-b="B">B · LED</button><button data-b="C">C · 조명</button><button data-b="D">D · 카메라</button></div><span class="cap">PAD</span><div class="seg" id="pdBank"><button data-p="0" class="on">S1–8</button><button data-p="8">S9–16</button></div></div>
     </div>
   </section>
 </div>
@@ -1550,6 +1550,19 @@ const DEF2={led1:1,led2:1,led3:1,led4:1,shift:.5,zoom:0,split:0,fade:0};
 const kScale=k=>k==='speed'?50:100, kMax=k=>k==='speed'?2:1;
 const FXK=[{k:'jitter',n:'JITTER',src:'DRUMS',d:'지터 노이즈'},{k:'punch',n:'PUNCH',src:'BASS',d:'크기 펀치'},{k:'hue',n:'HUE',src:'VOCAL',d:'색 이동'},{k:'blur',n:'BLUR',src:'1-RMS',d:'몽환 블러'},
   {k:'grain',n:'GRAIN',src:'HI',d:'거친 그레인'},{k:'strobe',n:'STROBE',src:'BEAT',d:'박자 번쩍'},{k:'speed',n:'SPEED',src:'BPM',d:'재생 속도'},{k:'light',n:'LIGHT',src:'RMS',d:'조도'}];
+const FXK3=[{k:'lfront',n:'FRONT',src:'LIGHT',d:'앞 조명 밝기'},{k:'lback',n:'BACK',src:'LIGHT',d:'뒤 조명 밝기'},{k:'lfloor',n:'FLOOR',src:'LIGHT',d:'바닥 조명 밝기'},
+  {k:'hfront',n:'F-HUE',src:'COLOR',d:'앞 색 (곡 = 곡 색)'},{k:'hback',n:'B-HUE',src:'COLOR',d:'뒤 색'},{k:'hfloor',n:'FL-HUE',src:'COLOR',d:'바닥 색'},
+  {k:'width',n:'WIDTH',src:'BEAM',d:'빔 폭·경계'},{k:'bloom',n:'BLOOM',src:'BEAM',d:'빛 번짐 (50=기본)'}];
+const FXK4=[{k:'corbit',n:'ORBIT',src:'CAM',d:'좌우로 돌기'},{k:'celev',n:'HEIGHT',src:'CAM',d:'올려보기·내려보기'},{k:'cdist',n:'DIST',src:'CAM',d:'거리'},{k:'cfov',n:'FOV',src:'CAM',d:'화각 (작을수록 망원)'},
+  {k:'cx',n:'PAN',src:'CAM',d:'바라보는 점 좌우'},{k:'cy',n:'TILT',src:'CAM',d:'바라보는 점 높이'},{k:'cshake',n:'SHAKE',src:'CAM',d:'손떨림'},{k:'cspin',n:'SPIN',src:'CAM',d:'자동 회전 (50=정지)'}];
+const FXALL=FXK.concat(FXK2,FXK3,FXK4),LIGHTK=new Set(FXK3.map(f=>f.k)),CAMK=new Set(FXK4.map(f=>f.k));
+/* C·D 기본값. 카메라 기본은 객석 시점, cz = 바라보는 점의 앞뒤 위치(노브 없음 · 지금 화면에서 가져옴) */
+Object.assign(DEF2,{lfront:1,lback:1,lfloor:1,hfront:0,hback:0,hfloor:0,width:.55,bloom:.5,corbit:.5,celev:.191,cdist:.826,cfov:.3077,cx:.5,cy:.333,cshake:0,cspin:.5,cz:-40});
+const hueDeg=v=>(v-.01)/.99*360;
+/* 화면 표시값 */
+function fmtK(k,v){if(k[0]==='h'&&k!=='hue')return v<.01?'곡':Math.round(hueDeg(v))+'°';
+  if(k==='corbit')return Math.round((v-.5)*360)+'°';if(k==='celev')return Math.round(-20+v*100)+'°';if(k==='cfov')return Math.round(15+v*65)+'°';
+  if(k==='cspin')return String(Math.round((v-.5)*200));return String(Math.round(v*kScale(k)))}
 const LOOK_RULE = { // 라벨별 기본 룩
   intro: {fx:{jitter:.10,punch:.12,hue:.20,blur:.38,grain:.55,strobe:0,speed:.55,light:.45},pat:'curtain',crowd:'song',shot:'',cam:0,why:'낮은 에너지 → 타이틀 텍스트 + 느린 영상, 블러·그레인으로 몽환적으로 열기'},
   verse: {fx:{jitter:.22,punch:.30,hue:.30,blur:.12,grain:.55,strobe:.08,speed:.75,light:.55},pat:'free',crowd:'song',shot:'',cam:0,why:'보컬 중심·드럼 밀도 낮음 → 호랑이 러닝 클립(v1·v2) 교차, 지터는 약하게'},
@@ -1571,7 +1584,7 @@ function buildSections(segs){
   SEC.forEach((s,i)=>{
     s.i=i; s.color=SEC_COLOR[s.label]; s.bars=((s.end-s.start)/(4*60/BPM));
     s.st={rms:envAvg('rms',s.start,s.end),bass:envAvg('bass',s.start,s.end),vocal:envAvg('vocal',s.start,s.end),hi:envAvg('hi',s.start,s.end),drums:envAvg('drums',s.start,s.end)};
-    const R=LOOK_RULE[s.label]; s.fx={...R.fx,...DEF2}; s.on={};FXK.concat(FXK2).forEach(f=>s.on[f.k]=true);s.sheet=i+1;s.ledSrc=[null,null,null,null];
+    const R=LOOK_RULE[s.label]; s.fx={...R.fx,...DEF2}; s.on={};FXALL.forEach(f=>s.on[f.k]=true);s.sheet=i+1;s.ledSrc=[null,null,null,null];
     s.lyMotion='inherit'; s.pat=R.pat; s.crowd=R.crowd; s.shot=R.shot; s.cam=R.cam; s.why=whyOf(s);
     const rel=(s.st.rms-ALL_RMS)/ALL_RMS; s.rel=rel;   // 곡 통계로 미세 보정: 평균보다 센 구간은 조도·펀치 가산
     s.fx.light=clamp(s.fx.light+rel*.5,.2,1); s.fx.punch=clamp(s.fx.punch+(s.st.bass-.65)*.6,0,1);
@@ -1731,7 +1744,7 @@ function flushState(){if(!stateReady)return;
   const snap=snapState();if(snap===lastSnap)return;
   const all=readJson(STORE)||{};all[srcKey]=JSON.parse(snap);if(writeText(STORE,JSON.stringify(all)))lastSnap=snap}
 function applySnap(p){if(!p||!Array.isArray(p.sec)||!p.sec.length||!Array.isArray(p.ev)||!p.ev.length)return false;
-  const allOn=Object.fromEntries(FXK.concat(FXK2).map(f=>[f.k,true]));
+  const allOn=Object.fromEntries(FXALL.map(f=>[f.k,true]));
   SEC=p.sec.map(({rx,...v})=>{const label=SEC_COLOR[v.label]?v.label:'verse';
     const x={...v,label,fx:{...LOOK_RULE[label].fx,...DEF2,...v.fx},on:{...allOn,...v.on},ledSrc:[0,1,2,3].map(i=>{const id=(v.ledSrc||[])[i];return id&&CLIPS[id]?id:null})};
     x.why=whyOf(x)+(rx?REACT_NOTE:'');return x});
@@ -1975,10 +1988,33 @@ function panels(){ // PGM(4:1) → LED 1~4 (각 960×960). 거울상 없음 · �
 function drawGuide(c){c.save();c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=2;c.fillStyle='rgba(255,255,255,.75)';c.font='600 30px "Barlow Condensed",sans-serif';c.textBaseline='top';c.textAlign='left';
   for(let i=0;i<4;i++){if(i){c.beginPath();c.moveTo(i*H,0);c.lineTo(i*H,H);c.stroke()}c.fillText('LED '+(i+1)+' · 960×960',i*H+12,10)}c.restore()}
 let lastSecIdx=-1;
-function applyLook(force){const sec=secAt(S.t);if(!EXT)return;
-  if(S.mode==='ment'){EXT.setPattern('center');EXT.setGroup('front',{dim:.35});EXT.setGroup('back',{dim:.25});EXT.setGroup('floor',{dim:.3});EXT.setCrowd('song');return}
-  if(force||sec.i!==lastSecIdx){EXT.setPattern(sec.pat);EXT.setCrowd(sec.crowd);if(sec.shot){EXT.playShot(sec.shot,false)} else if(lastSecIdx>=0&&SEC[lastSecIdx].shot){EXT.setView(S.stageView||'house')}}
-  const d=sec.on.light?sec.fx.light:.7;EXT.setGroup('front',{dim:d});EXT.setGroup('back',{dim:d});EXT.setGroup('floor',{dim:d});EXT.setBeamGain(.6+d*.6);EXT.setBloom(.4+d*.5)}
+/* 조명(뱅크 C) — LIGHT 는 전체 마스터, C 의 밝기는 그 안의 비율 */
+const fxv=(sec,k)=>sec.on[k]?sec.fx[k]:DEF2[k];
+const hueCss=v=>v<.01?null:`hsl(${Math.round(hueDeg(v))%360}, 100%, 55%)`;
+function applyLights(){const sec=secAt(S.t);if(!EXT||S.mode==='ment')return;
+  const d=sec.on.light?sec.fx.light:.7,bm=fxv(sec,'bloom')*2;
+  [['front','lfront','hfront'],['back','lback','hback'],['floor','lfloor','hfloor']].forEach(([g,l,h])=>EXT.setGroup(g,{dim:d*fxv(sec,l),color:hueCss(fxv(sec,h))}));
+  EXT.setBeamGain(.6+d*.6);EXT.setBeamEdge(fxv(sec,'width'));EXT.setBloomMul(bm);EXT.setBloom((.4+d*.5)*bm)}
+/* 카메라(뱅크 D) — 카메라 샷이 '직접 조절'인 구간에서만 */
+const camPose=sec=>{const v=k=>fxv(sec,k),sp=v('cspin')-.5;return{az:(v('corbit')-.5)*360,el:-20+v('celev')*100,dist:120*Math.pow(30,v('cdist')),fov:15+v('cfov')*65,
+  x:(v('cx')-.5)*1600,y:v('cy')*600,z:sec.fx.cz,shake:v('cshake'),spin:Math.abs(sp)<.03?0:sp*60}};
+let camSec=null;
+function applyCamera(){if(!EXT)return;const sec=secAt(S.t);
+  if(S.mode!=='music'||sec.shot!=='manual'){EXT.setManualCamera(null);camSec=null;return}
+  EXT.setManualCamera(camPose(sec),camSec!==sec);camSec=sec}
+/* 직접 조절로 넘어갈 때: 지금 보이는 시점을 저장값으로 가져와 화면이 튀지 않게 함 */
+function toManualCam(s){if(s.shot==='manual')return;
+  if(EXT&&secAt(S.t)===s&&S.mode==='music'){const c=EXT.getCamera(),u=x=>clamp(x,0,1);
+    Object.assign(s.fx,{corbit:u(c.az/360+.5),celev:u((c.el+20)/100),cdist:u(Math.log(c.dist/120)/Math.log(30)),cfov:u((c.fov-15)/65),cx:u(c.x/1600+.5),cy:u(c.y/600),cz:c.z,cshake:0,cspin:.5});
+    FXK4.forEach(f=>s.on[f.k]=true)}
+  s.shot='manual';
+  if(s===S.sel){$('shotSel').value='manual';FXK4.forEach(f=>syncInspectorSlider(f.k));renderKnobVals()}
+  if(secAt(S.t)===s)applyCamera()}
+function applyLook(force){const sec=secAt(S.t);if(!EXT)return;const wasManual=camSec!==null,home=()=>EXT.setView(S.stageView||'house');
+  if(S.mode==='ment'){applyCamera();if(wasManual)home();EXT.setPattern('center');[['front',.35],['back',.25],['floor',.3]].forEach(([g,dim])=>EXT.setGroup(g,{dim,color:null}));EXT.setCrowd('song');return}
+  if(force||sec.i!==lastSecIdx){EXT.setPattern(sec.pat);EXT.setCrowd(sec.crowd);applyCamera();
+    if(sec.shot&&sec.shot!=='manual')EXT.playShot(sec.shot,false);else if(!sec.shot&&(wasManual||(lastSecIdx>=0&&SEC[lastSecIdx]&&SEC[lastSecIdx].shot)))home()}
+  applyLights()}
 let ingestAcc=0;
 function feedStage(){if(!EXT)return;EXT.ingest({stem_drums:SIG.drums,stem_bass:SIG.bass,stem_vocal:SIG.vocal,stem_other:SIG.hi,rms:SIG.rms,band_low:SIG.bass,band_hi:SIG.hi,onset:SIG.onset,beat:SIG.beatIdx,bpm:BPM,beat_in_bar:SIG.bib})}
 
@@ -2051,7 +2087,7 @@ $('btnCam').onclick=startCam;$('camMosaic').oninput=e=>S.mosaic=e.target.value/1
 const PATS=[['free','자유(쓸기)'],['crown','왕관'],['sunburst','선버스트'],['cross','X 크로스'],['curtain','커튼'],['center','센터'],['wave','파도']];
 $('patSel').innerHTML=PATS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('');
 $('patSel').onchange=e=>{S.sel.pat=e.target.value;if(secAt(S.t)===S.sel)applyLook(true)};
-$('shotSel').onchange=e=>{S.sel.shot=e.target.value;if(secAt(S.t)===S.sel)applyLook(true)};
+$('shotSel').onchange=e=>{const v=e.target.value;if(v==='manual'){toManualCam(S.sel);return}S.sel.shot=v;if(secAt(S.t)===S.sel)applyLook(true)};
 document.querySelectorAll('#crowdSeg button').forEach(b=>b.onclick=()=>{S.sel.crowd=b.dataset.k;renderInspector();if(secAt(S.t)===S.sel)applyLook(true)});
 document.querySelectorAll('#lyMoSec button').forEach(b=>b.onclick=()=>{S.sel.lyMotion=b.dataset.k;renderInspector()});
 /* 여분 분절 · 합치기 · 라벨 변경 */
@@ -2097,10 +2133,12 @@ function renderInspector(){const s=S.sel;if(!secVisible){$('secLab').textContent
   document.querySelectorAll('#evs .ev').forEach(el=>el.onclick=()=>{S.selEv=EVENTS[+el.dataset.i];setTime(S.selEv.s);renderInspector()});
   $('clipPick').innerHTML=Object.entries(CLIPS).map(([k,c])=>`<span class="ev ${S.selEv&&S.selEv.clip===k?'sel':''}" data-k="${k}" style="background:${c.color};font-size:11px;padding:2px 5px">${c.tag}</span>`).join('');
   document.querySelectorAll('#clipPick .ev').forEach(el=>el.onclick=()=>pickClipFor(el.dataset.k));
-  const fxRow=f=>`<div class="fx ${s.on[f.k]?'':'off'}" data-k="${f.k}"><div class="n" title="클릭: 켜기/끄기"><b>${f.n}</b><small>${f.d} ← ${f.src}</small></div><div><input type="range" min="0" max="100" value="${Math.round(s.fx[f.k]*kScale(f.k))}" data-k="${f.k}"><div class="meter"><i id="m_${f.k}"></i></div></div><span class="v" id="v_${f.k}">${Math.round(s.fx[f.k]*kScale(f.k))}</span></div>`;
-  $('fxList').innerHTML=FXK.map(fxRow).join('')+`<div class="cap" style="margin:8px 0 2px;color:var(--cyan)">LED 4 SCREEN · 노브 뱅크 B</div>`+FXK2.map(fxRow).join('');
-  document.querySelectorAll('#fxList .fx').forEach(el=>{const k=el.dataset.k;el.querySelector('.n').onclick=()=>{s.on[k]=!s.on[k];renderInspector()};
-    el.querySelector('input').oninput=e=>{setFx(k,+e.target.value/kScale(k));el.querySelector('.v').textContent=e.target.value}});
+  const fxRow=f=>`<div class="fx ${s.on[f.k]?'':'off'}" data-k="${f.k}"><div class="n" title="클릭: 켜기/끄기"><b>${f.n}</b><small>${f.d} ← ${f.src}</small></div><div><input type="range" min="0" max="100" value="${Math.round(s.fx[f.k]*kScale(f.k))}" data-k="${f.k}"><div class="meter"><i id="m_${f.k}"></i></div></div><span class="v" id="v_${f.k}">${fmtK(f.k,s.fx[f.k])}</span></div>`;
+  $('fxList').innerHTML=FXK.map(fxRow).join('')+`<div class="cap" style="margin:8px 0 2px;color:var(--cyan)">LED 4 SCREEN · 노브 뱅크 B</div>`+FXK2.map(fxRow).join('')
+    +`<div class="cap" style="margin:8px 0 2px;color:#FFD428">조명 · 3D 무대 · 노브 뱅크 C</div>`+FXK3.map(fxRow).join('')
+    +`<div class="cap" style="margin:8px 0 2px;color:#B48CF2">카메라 · 3D 무대 · 노브 뱅크 D</div>`+FXK4.map(fxRow).join('');
+  document.querySelectorAll('#fxList .fx').forEach(el=>{const k=el.dataset.k;el.querySelector('.n').onclick=()=>{s.on[k]=!s.on[k];renderInspector();if(secAt(S.t)===s){applyLights();applyCamera()}};
+    el.querySelector('input').oninput=e=>{setFx(k,+e.target.value/kScale(k));syncInspectorSlider(k)}});
   $('secLabel').innerHTML=Object.keys(SEC_COLOR).map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('');$('secLabel').value=s.label;
   renderCue();renderLedSrc();
   $('patSel').value=s.pat;$('shotSel').value=s.shot||'';
@@ -2108,13 +2146,16 @@ function renderInspector(){const s=S.sel;if(!secVisible){$('secLab').textContent
   document.querySelectorAll('#camSecSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.k===s.cam));
   document.querySelectorAll('#lyMoSec button').forEach(b=>b.classList.toggle('on',b.dataset.k===(s.lyMotion||'inherit')));
   renderKnobs()}
-function setFx(k,v){S.sel.fx[k]=clamp(v,0,k==='speed'?2:1);if(secAt(S.t)===S.sel&&k==='light')applyLook(true);renderKnobVals();syncMotor(KB().findIndex(f=>f.k===k))}
+function setFx(k,v){const s=S.sel;if(CAMK.has(k))toManualCam(s);s.fx[k]=clamp(v,0,k==='speed'?2:1);
+  if(secAt(S.t)===s){if(k==='light'||LIGHTK.has(k))applyLights();else if(CAMK.has(k))applyCamera()}renderKnobVals();syncMotor(KB().findIndex(f=>f.k===k))}
 function meters(){const s=secAt(S.t),map={jitter:FXV.jitter,punch:FXV.punch*7,hue:Math.abs(FXV.hue)/160,blur:FXV.blur/9,grain:FXV.grain*2.5,strobe:FXV.strobe*2,speed:FXV.speed/1.7,light:FXV.light};
   FXK.forEach(f=>{const el=$('m_'+f.k);if(el)el.style.width=clamp(map[f.k]||0,0,1)*100+'%'})}
 
 /* ═══════════════ ROTO-CONTROL (virtual + Web MIDI) ═══════════════ */
 const KN=$('knobs'),PD=$('pads');
-const KB=()=>S.bank==='B'?FXK2:FXK;
+const BANKS={A:FXK,B:FXK2,C:FXK3,D:FXK4},BANKCOL={B:'#7FD7D0',C:'#FFD428',D:'#B48CF2'};
+const KB=()=>BANKS[S.bank];
+const nextBank=()=>setBank('ABCD'[('ABCD'.indexOf(S.bank)+1)%4]);
 KN.innerHTML=Array.from({length:8},(_,i)=>`<div class="kn" data-i="${i}"><div class="lcd"><b id="ln${i}"></b><span id="lv${i}">0</span></div><div class="knob" id="kb${i}"></div></div>`).join('');
 const PADN=['S1','S2','S3','S4','S5','S6','S7','S8','▶','◀SEC','SEC▶','MENT','LYRIC','CAM','MODE','BLK'];
 PD.innerHTML=PADN.map((n,i)=>`<button class="pad" id="pd${i}" data-i="${i}">${n}</button>`).join('');
@@ -2127,30 +2168,50 @@ function padPress(i){ if(i<8){if(SEC[S.padBase+i])jumpSec(S.padBase+i)} else swi
   case 15:S.black=!S.black;setPad(15,S.black);break}
   midiOutPad(i)}
 PD.addEventListener('click',e=>{const b=e.target.closest('.pad');if(b)padPress(+b.dataset.i)});
-function renderKnobVals(){KB().forEach((f,i)=>{const v=S.sel.fx[f.k],u=v/kMax(f.k);$('ln'+i).textContent=f.n;$('lv'+i).textContent=Math.round(v*kScale(f.k));$('kb'+i).style.setProperty('--a',(-135+clamp(u,0,1)*270)+'deg');$('kb'+i).style.setProperty('--c',S.sel.on[f.k]?(S.bank==='B'?'#7FD7D0':S.sel.color):'#333')})}
+function renderKnobVals(){KB().forEach((f,i)=>{const v=S.sel.fx[f.k],u=v/kMax(f.k);$('ln'+i).textContent=f.n;$('lv'+i).textContent=fmtK(f.k,v);$('kb'+i).style.setProperty('--a',(-135+clamp(u,0,1)*270)+'deg');$('kb'+i).style.setProperty('--c',S.sel.on[f.k]?(BANKCOL[S.bank]||S.sel.color):'#333')})}
 function renderKnobs(){renderKnobVals();for(let i=0;i<8;i++)setPad(i,SEC[S.padBase+i]===S.sel)}
 function setBank(b){S.bank=b;document.querySelectorAll('#kbBank button').forEach(x=>x.classList.toggle('on',x.dataset.b===b));renderKnobVals();syncMotorAll()}
 function setPadBank(n){S.padBase=n;document.querySelectorAll('#pdBank button').forEach(x=>x.classList.toggle('on',+x.dataset.p===n));paintPads();renderKnobs()}
 document.querySelectorAll('#kbBank button').forEach(x=>x.onclick=()=>setBank(x.dataset.b));document.querySelectorAll('#pdBank button').forEach(x=>x.onclick=()=>setPadBank(+x.dataset.p));
-let motorT=0;function motorMove(){$('rotoSt').textContent='SIM · MOTOR ▸ '+S.sel.label.toUpperCase();clearTimeout(motorT);motorT=setTimeout(()=>$('rotoSt').textContent=midiOut?'MIDI · '+midiName:'SIM · 모터 피드백',1500)}
+const midiIdle=()=>midiProf==='lcxl3'?'LCXL3 · 연결':midiName?'MIDI · '+midiName:'SIM · 모터 피드백';
+let motorT=0;function midiHint(text){$('rotoSt').textContent=text;clearTimeout(motorT);motorT=setTimeout(()=>$('rotoSt').textContent=midiIdle(),1500)}
+function motorMove(){midiHint((midiProf==='lcxl3'?'LCXL3 ▸ ':'SIM · MOTOR ▸ ')+S.sel.label.toUpperCase())}
 for(let i=0;i<8;i++){const kb=$('kb'+i),f=()=>KB()[i];let y0,v0;
-  kb.addEventListener('pointerdown',e=>{kb.setPointerCapture(e.pointerId);kb.classList.add('touch');y0=e.clientY;v0=S.sel.fx[f().k]});
+  kb.addEventListener('pointerdown',e=>{kb.setPointerCapture(e.pointerId);kb.classList.add('touch');y0=e.clientY;if(CAMK.has(f().k))toManualCam(S.sel);v0=S.sel.fx[f().k]});
   kb.addEventListener('pointermove',e=>{if(!kb.hasPointerCapture(e.pointerId))return;const k=f().k;setFx(k,v0+(y0-e.clientY)/140*kMax(k));syncInspectorSlider(k)});
   kb.addEventListener('pointerup',()=>kb.classList.remove('touch'));
-  kb.addEventListener('wheel',e=>{e.preventDefault();const k=f().k;setFx(k,S.sel.fx[k]-Math.sign(e.deltaY)*.03*kMax(k));syncInspectorSlider(k)},{passive:false});
+  kb.addEventListener('wheel',e=>{e.preventDefault();const k=f().k;if(CAMK.has(k))toManualCam(S.sel);setFx(k,S.sel.fx[k]-Math.sign(e.deltaY)*.03*kMax(k));syncInspectorSlider(k)},{passive:false});
   kb.addEventListener('dblclick',()=>{const k=f().k,R=k in DEF2?DEF2[k]:LOOK_RULE[S.sel.label].fx[k];setFx(k,R);syncInspectorSlider(k)})}
-function syncInspectorSlider(k){const el=document.querySelector(`#fxList input[data-k="${k}"]`);if(el){const v=Math.round(S.sel.fx[k]*kScale(k));el.value=v;$('v_'+k).textContent=v}}
-/* Web MIDI (Roto-Control 실물) — 기본 CC1~8 = 노브, 노트 36~51 = 패드. 실제 매핑은 Roto-Control 에디터에서 지정 */
-let midiOut=null,midiName='';
+function syncInspectorSlider(k){const el=document.querySelector(`#fxList input[data-k="${k}"]`);if(el){const v=Math.round(S.sel.fx[k]*kScale(k));el.value=v;$('v_'+k).textContent=fmtK(k,S.sel.fx[k])}}
+/* Web MIDI — 입력 장치 이름으로 프로필을 고름 (Roto-Control → Launch Control XL 3 → 첫 번째 장치 순)
+   roto  : 가정값. CC1~8 = 현재 뱅크 노브, 노트 36~51 = 패드, 52·53 = 뱅크. 실제 매핑은 Roto-Control 에디터에서 지정. 그 밖의 장치도 이 값
+   lcxl3 : 실측(채널 1, 전부 CC). 인코더 윗줄 13~20 = 뱅크 A, 가운데 21~28 = C(조명), 아랫줄 29~36 = D(카메라), 페이더 5~12 = B, 버튼 37~52 = 패드 1~16.
+           버튼은 누를 때마다 한 번만 보냄(127·0 번갈아, 토글 설정) → 값과 상관없이 한 번 누름. 장치로는 아무것도 보내지 않음 */
+let midiIn=null,midiOut=null,midiName='',midiProf='roto';
+const isLCXL3=p=>!/daw/i.test(p.name)&&(/lcxl ?3|launch ?control ?xl ?(mk ?)?3/i.test(p.name)||(/novation/i.test(p.manufacturer||'')&&p.name.trim()==='MIDI Out'));
+/* 비례 따라가기: 모터 없는 절대값 컨트롤. 돌린 방향으로 바로 반응하고, 남은 장비 이동폭에 남은 값 폭을 나눠 배분해
+   끝까지 돌리면 값도 끝에 닿음. 한 번에 튀지 않게 장비 이동량의 FOLLOW_MAX 배까지만. 연결 후 첫 신호는 위치 확인용 */
+const HW=new Map(),FOLLOW_MAX=4;
+function followFx(cc,f,v){const p=HW.get(cc),s=S.sel;HW.set(cc,v);
+  if(p!=null&&v!==p){if(CAMK.has(f.k))toManualCam(s);const t=clamp(s.fx[f.k]/kMax(f.k),0,1),room=v>p?(1-t)/(1-p):t/p;
+    setFx(f.k,(t+(v-p)*Math.min(room,FOLLOW_MAX))*kMax(f.k));syncInspectorSlider(f.k)}
+  midiHint(`${f.n} ${fmtK(f.k,s.fx[f.k])}`)}
+function onMidi(data){const [st,d1,d2]=data,cmd=st&0xf0;
+  if(cmd===0xc0){sheetJump(d1);return}
+  if(midiProf==='lcxl3'){if(st!==0xb0)return;
+    if(d1>=13&&d1<=20)followFx(d1,FXK[d1-13],d2/127);else if(d1>=21&&d1<=28)followFx(d1,FXK3[d1-21],d2/127);else if(d1>=29&&d1<=36)followFx(d1,FXK4[d1-29],d2/127);else if(d1>=5&&d1<=12)followFx(d1,FXK2[d1-5],d2/127);else if(d1>=37&&d1<=52)padPress(d1-37);return}
+  if(cmd===0xb0&&d1>=1&&d1<=8){const f=KB()[d1-1];setFx(f.k,d2/127*kMax(f.k));syncInspectorSlider(f.k)}
+  else if(cmd===0x90&&d2>0&&d1>=36&&d1<=51)padPress(d1-36);
+  else if(cmd===0x90&&d2>0&&d1===52)nextBank();else if(cmd===0x90&&d2>0&&d1===53)setPadBank(S.padBase?0:8)}
 $('pMidi').onclick=async()=>{ if(!navigator.requestMIDIAccess){$('midiTxt').textContent='UNSUPPORTED';return}
-  try{const a=await navigator.requestMIDIAccess();const ins=[...a.inputs.values()],outs=[...a.outputs.values()];const rin=ins.find(i=>/roto/i.test(i.name))||ins[0],rout=outs.find(o=>/roto/i.test(o.name))||outs[0];
+  try{const a=await navigator.requestMIDIAccess();const ins=[...a.inputs.values()],outs=[...a.outputs.values()];const rin=ins.find(i=>/roto/i.test(i.name))||ins.find(isLCXL3)||ins[0];
     if(!rin){$('midiTxt').textContent='NO DEVICE';return}
-    midiOut=rout||null;midiName=rin.name;$('midiTxt').textContent=rin.name;$('ledMidi').className='led on';
-    rin.onmidimessage=e=>{const [st,d1,d2]=e.data,cmd=st&0xf0;if(cmd===0xb0&&d1>=1&&d1<=8){const f=KB()[d1-1];setFx(f.k,d2/127*kMax(f.k));syncInspectorSlider(f.k)}
-      else if(cmd===0x90&&d2>0&&d1>=36&&d1<=51)padPress(d1-36);
-      else if(cmd===0x90&&d2>0&&d1===52)setBank(S.bank==='A'?'B':'A');else if(cmd===0x90&&d2>0&&d1===53)setPadBank(S.padBase?0:8);
-      else if(cmd===0xc0)sheetJump(d1)};
-    syncMotorAll()}catch(err){$('midiTxt').textContent='DENIED'}};
+    if(midiIn)midiIn.onmidimessage=null;
+    midiIn=rin;midiName=rin.name;midiProf=isLCXL3(rin)?'lcxl3':'roto';HW.clear();
+    const lc=midiProf==='lcxl3';midiOut=lc?null:(outs.find(o=>/roto/i.test(o.name))||outs[0]||null);
+    $('midiDev').textContent=lc?'LAUNCH CONTROL':'ROTO-CONTROL';$('midiTxt').textContent=lc?'XL 3':rin.name;$('ledMidi').className='led on';
+    rin.onmidimessage=e=>onMidi(e.data);
+    syncMotorAll();midiHint(midiIdle())}catch(err){$('midiTxt').textContent='DENIED'}};
 function syncMotor(i){if(!midiOut||i<0)return;const f=KB()[i];midiOut.send([0xb0,i+1,Math.round(clamp(S.sel.fx[f.k]/kMax(f.k),0,1)*127)])}
 function syncMotorAll(){KB().forEach((_,i)=>syncMotor(i))}
 function midiOutPad(i){if(midiOut)midiOut.send([0x90,36+i,127])}
@@ -2166,14 +2227,14 @@ function goEnd(){pause();setTime(DUR-.05);selectSec(SEC[SEC.length-1]);lastLyCur
 $('tpFirst').onclick=goStart;$('tpLast').onclick=goEnd;
 $('tpPlay').onclick=()=>S.playing?pause():play();$('tpPrev').onclick=()=>jumpSec(secAt(S.t).i-((S.t-secAt(S.t).start)>1.5?0:1));$('tpNext').onclick=()=>jumpSec(secAt(S.t).i+1);
 document.querySelectorAll('#viewSeg button').forEach(b=>b.onclick=()=>{S.view=b.dataset.v;$('stageWrap').classList.toggle('vpgm',S.view==='pgm');$('pgm').style.display=S.pip||S.view==='pgm'?'block':'none';document.querySelectorAll('#viewSeg button').forEach(x=>x.classList.toggle('on',x===b))});
-document.querySelectorAll('#camSeg button').forEach(b=>b.onclick=()=>{S.stageView=b.dataset.v;if(EXT)EXT.setView(b.dataset.v);document.querySelectorAll('#camSeg button').forEach(x=>x.classList.toggle('on',x===b))});
+document.querySelectorAll('#camSeg button').forEach(b=>b.onclick=()=>{S.stageView=b.dataset.v;if(EXT){EXT.setView(b.dataset.v);applyLights()}document.querySelectorAll('#camSeg button').forEach(x=>x.classList.toggle('on',x===b))});
 $('pGuide').onclick=()=>{S.guide=!S.guide;$('pGuide').classList.toggle('on',S.guide)};
 $('pPip').onclick=()=>{S.pip=!S.pip;$('pPip').classList.toggle('on',S.pip);$('pgm').style.display=S.pip||S.view==='pgm'?'block':'none'};
 $('pFull').onclick=()=>{(document.documentElement.requestFullscreen||(()=>{})).call(document.documentElement)};
 addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)&&e.target.type!=='range')return;
   if(e.code==='Space'){e.preventDefault();if(S.tap){const i=S.tapIdx;if(i<LY.length){const prevI=i-1;LY[i].t=S.t;LY[i].e=Math.max(S.t+.8,i+1<LY.length?Math.min(LY[i].e,LY[i+1].t-.1):LY[i].e);if(prevI>=0)LY[prevI].e=Math.min(LY[prevI].e,S.t-.05);S.tapIdx++;renderLy();lastLyCur=-2;hiLy();drawTL()}}else S.playing?pause():play()}
   else if(e.key==='Escape')setTap(false);else if(e.key==='t'||e.key==='T')setTap(!S.tap);else if(e.key==='Home'){e.preventDefault();goStart()}else if(e.key==='End'){e.preventDefault();goEnd()}else if(e.key==='['){jumpSec(secAt(S.t).i-1)}else if(e.key===']'){jumpSec(secAt(S.t).i+1)}
-  else if(e.key==='b'||e.key==='B')setBank(S.bank==='A'?'B':'A');else if(e.key==='s'||e.key==='S')setLyMotion(S.lyMotion==='scan'?'basic':'scan');else if(e.key==='m'||e.key==='M')setMode(S.mode==='ment'?'music':'ment');else if(/^[1-9]$/.test(e.key))jumpSec(+e.key-1);
+  else if(e.key==='b'||e.key==='B')nextBank();else if(e.key==='s'||e.key==='S')setLyMotion(S.lyMotion==='scan'?'basic':'scan');else if(e.key==='m'||e.key==='M')setMode(S.mode==='ment'?'music':'ment');else if(/^[1-9]$/.test(e.key))jumpSec(+e.key-1);
   else if(e.key==='ArrowRight')setTime(S.t+(e.shiftKey?1:5));else if(e.key==='ArrowLeft')setTime(S.t-(e.shiftKey?1:5))});
 
 /* ═══════════════ OUTPUT · REC (MediaRecorder) ═══════════════

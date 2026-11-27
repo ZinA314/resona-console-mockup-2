@@ -1375,8 +1375,11 @@ const VIEWS = {
   top:   {pos:[0,1300,1100],   tgt:[0,80,80]},
 };
 let camAnim = null;
+let manualCam = null, manualNow = null, spinAngle = 0, bloomMul = 1;     // 콘솔 노브의 직접 조절 카메라 · 번짐 배율
+function releaseManual(){ if(!manualCam) return; manualCam = manualNow = null; camera.fov = 35; camera.updateProjectionMatrix(); }
 function goView(name){
   const v = VIEWS[name]; if(!v) return;
+  releaseManual();
   if(typeof stopShot==='function') stopShot();
   camAnim = {t:0, p0:camera.position.clone(), t0:controls.target.clone(),
              p1:new THREE.Vector3(...v.pos), t1:new THREE.Vector3(...v.tgt)};
@@ -1384,8 +1387,8 @@ function goView(name){
 }
 camera.position.set(...VIEWS.house.pos); controls.target.set(...VIEWS.house.tgt);
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>goView(b.dataset.view));
-controls.addEventListener('start', ()=>{ camAnim=null; document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('on')); });
-function setOrbit(on){ if(on && typeof stopShot==='function') stopShot(); controls.autoRotate = on; controls.autoRotateSpeed = .45;
+controls.addEventListener('start', ()=>{ releaseManual(); camAnim=null; document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('on')); });
+function setOrbit(on){ if(on) releaseManual(); if(on && typeof stopShot==='function') stopShot(); controls.autoRotate = on; controls.autoRotateSpeed = .45;
   document.getElementById('btnOrbit').classList.toggle('on', on); }
 document.getElementById('btnOrbit').onclick = ()=>setOrbit(!controls.autoRotate);
 
@@ -1410,6 +1413,7 @@ const SHOTS = {
 const DIRECTOR_ORDER = ['drone','dolly','pov','close','crane','back'];
 let shot = null, director = false, beamGain = 1;                       // shot = {name, t0}
 function playShot(name, keepDirector){
+  releaseManual();
   shot = {name, t0:performance.now()/1000};
   camAnim = null; controls.autoRotate = false; document.getElementById('btnOrbit').classList.remove('on');
   if(!keepDirector) setDirector(false);
@@ -1447,7 +1451,30 @@ function updateShot(t, dt){
   camera.position.set(px,py,pz); controls.target.set(tx,ty,tz); camera.lookAt(tx,ty,tz);
   if(camera.fov !== S.fov){ camera.fov = S.fov; camera.updateProjectionMatrix(); }
   beamGain += ((S.beam ?? 1) - beamGain) * Math.min(1, dt*3);
-  bloom.strength += ((S.bloom ?? .75) - bloom.strength) * Math.min(1, dt*3);
+  bloom.strength += ((S.bloom ?? .75) * bloomMul - bloom.strength) * Math.min(1, dt*3);
+}
+/* ───────── 직접 조절 카메라 (콘솔 노브) ─────────
+   p = {az, el(도), dist, fov, x, y, z(바라보는 점), shake 0~1, spin(도/초)}. reset = 새로 잡을 때(바로 이동), 아니면 부드럽게 따라감 */
+function setManualCamera(p, reset){
+  if(!p){ releaseManual(); return; }
+  if(!manualCam || reset){ stopShot(); camAnim = null; controls.autoRotate = false; document.getElementById('btnOrbit').classList.remove('on');
+    document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('on')); spinAngle = 0; manualNow = {...p}; }
+  manualCam = {...p};
+}
+function updateManual(t, dt){
+  const c = manualNow, k = Math.min(1, dt*8);
+  for(const n in manualCam) c[n] += (manualCam[n] - c[n]) * k;
+  spinAngle = (spinAngle + c.spin*dt) % 360;
+  const a = (c.az + spinAngle)*Math.PI/180, e = c.el*Math.PI/180;
+  let px = c.x + Math.sin(a)*Math.cos(e)*c.dist, py = Math.max(8, c.y + Math.sin(e)*c.dist), pz = c.z + Math.cos(a)*Math.cos(e)*c.dist, tx = c.x, ty = c.y;
+  if(c.shake > .001){ px += (noise2(t*1.3,1)-.5)*40*c.shake; py += ((noise2(t*1.1,2)-.5)*24 + sig.beatPulse*10)*c.shake;
+    tx += (noise2(t*.9,3)-.5)*70*c.shake; ty += (noise2(t*1.2,4)-.5)*45*c.shake; }
+  camera.position.set(px,py,pz); controls.target.set(tx,ty,c.z); camera.lookAt(tx,ty,c.z);
+  if(Math.abs(camera.fov - c.fov) > .01){ camera.fov = c.fov; camera.updateProjectionMatrix(); }
+}
+function getCamera(){
+  const t = controls.target, dx = camera.position.x-t.x, dy = camera.position.y-t.y, dz = camera.position.z-t.z, r = Math.hypot(dx,dy,dz) || 1;
+  return {az:Math.atan2(dx,dz)*180/Math.PI, el:Math.asin(dy/r)*180/Math.PI, dist:r, fov:camera.fov, x:t.x, y:t.y, z:t.z};
 }
 function onBeatCut(){ if(pendingCut){ const n = pendingCut; pendingCut = null; playShot(n, true); } }
 document.querySelectorAll('[data-shot]').forEach(b=>b.onclick=()=>playShot(b.dataset.shot));
@@ -1851,7 +1878,8 @@ function frame(now){
   cymbals.forEach((c,i)=>c.rotation.z = (i%2?-1:1)*(.15+sig.drums*.2));
 
   if(sig.beatCount !== lastBeatSeen){ lastBeatSeen = sig.beatCount; onBeatCut(); }
-  if(shot){ updateShot(t, dt); }
+  if(manualCam){ updateManual(t, dt); }
+  else if(shot){ updateShot(t, dt); }
   else {
     if(camAnim){
       camAnim.t = Math.min(1, camAnim.t + dt/1.1);
@@ -1882,6 +1910,8 @@ window.RESONA_EXT = {
   setGroup:(k,o)=>{ const G=LGROUP[k]; if(!G) return; if('dim' in o) G.dim=o.dim; if('color' in o) G.pick = o.color ? new THREE.Color(o.color) : null; },
   setCrowd:(mode,color)=>{ if(mode==='pick'){ crowdPick=new THREE.Color(color); } else crowdPick=null; setCrowdMode(mode); },
   setBloom:v=>{ bloom.strength=v; },
+  setBloomMul:v=>{ bloomMul=v; },                // 카메라 샷이 정하는 번짐에 곱함
+  setManualCamera, getCamera,
   setCity:v=>{ cityOn=!!v; },
   playShot:(n,keep)=>playShot(n,keep),
   setView:k=>{ const e=document.querySelector('[data-view="'+k+'"]'); if(e) e.click(); },

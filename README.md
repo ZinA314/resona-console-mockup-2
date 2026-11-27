@@ -32,3 +32,4 @@ cd mockup && python3 build/range_server.py 8765
 - 이 저장소는 **비공개**로 팀원 공유용입니다. `mockup/song.mp3`(곡)·`docs/`의 PDF(교육자료)·`src_*`(팀 코드)를 공개로 바꾸기 전에는 각 권리자의 허락을 확인하세요.
 - 서드파티: three.js(MIT), Pretendard · Barlow Condensed · IBM Plex Mono(OFL), team2 무대의 `THIRD_PARTY.md` 참고.
 - 카메라 얼굴 검출(MediaPipe), Roto-Control 실물 MIDI 매핑(CC1~8, 노트 36~53)은 아직 미검증입니다.
+- Launch Control XL 3 매핑은 실물에서 읽은 CC 번호 기준입니다([`mockup/README.md`](mockup/README.md)).
