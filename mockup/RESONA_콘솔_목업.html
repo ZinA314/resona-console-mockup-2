@@ -189,7 +189,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
     <section class="pn">
       <h3><em>02</em><span class="cap">PLAYLIST · CLIP</span><span class="r">영상 파일 끌어놓기로 교체</span></h3>
       <div class="lib" id="lib"></div>
-      <div class="row"><button class="pill" id="btnAddMedia">+ 미디어 추가</button><button class="pill" id="btnResetMedia" title="넣은 미디어와 구간 배정을 모두 지우고 처음 상태로">미디어 초기화</button></div>
+      <div class="row"><button class="pill" id="btnAddMedia">+ 미디어 추가</button><button class="pill" id="btnResetMedia" title="넣은 미디어, 구간 편집, 가사 시각을 모두 지우고 처음 상태로">전체 초기화</button></div>
       <div class="cap" id="mediaNote" style="text-transform:none;font-family:var(--mono);font-weight:400;margin-top:4px;color:var(--dim);line-height:1.4"></div>
       <input type="file" id="addFile" accept="video/*,image/*" multiple hidden>
       <input type="file" id="clipFile" accept="video/*,image/*" hidden>
@@ -1557,9 +1557,11 @@ const LOOK_RULE = { // 라벨별 기본 룩
   chorus:{fx:{jitter:.45,punch:.78,hue:.50,blur:0,grain:.30,strobe:.62,speed:1.15,light:.95},pat:'sunburst',crowd:'song',shot:'',cam:0,why:'에너지·보컬 정점 → 가사 반응형 텍스트/클립, 펀치·스트로브↑, 조명 선버스트'},
   bridge:{fx:{jitter:.55,punch:.62,hue:.80,blur:.08,grain:.62,strobe:.52,speed:1.0,light:1.0},pat:'wave',crowd:'auto',shot:'crane',cam:1,why:'음량 요동 큼 → 실시간 반응형 조명·응원봉 전환, 포효 클립 교차, 카메라 인물 합성 허용'},
   spare: {fx:{jitter:.30,punch:.40,hue:.40,blur:.10,grain:.45,strobe:.20,speed:.85,light:.70},pat:'free',crowd:'song',shot:'',cam:0,why:'여분 분절 — 직접 추가한 구간. 부모 구간의 값을 복사해 시작했으니 노브(뱅크 A·B)로 자유롭게 조정'},
-  outro: {fx:{jitter:.40,punch:.55,hue:.70,blur:.10,grain:.60,strobe:.40,speed:.95,light:.88},pat:'wave',crowd:'auto',shot:'',cam:1,why:'분석 범위(2:41.48) 밖 확장 구간 → 마지막 룩 유지 · allin1 재분석 필요'},
+  outro: {fx:{jitter:.40,punch:.55,hue:.70,blur:.10,grain:.60,strobe:.40,speed:.95,light:.88},pat:'wave',crowd:'auto',shot:'',cam:1,why:'마무리 구간 → 파도 조명·응원봉 자동, 카메라 인물 합성 허용, 포효 클립으로 닫기'},
 };
 let SEC=[];
+const REACT_NOTE=' · 반응형 구간(사용자 기획: 2:11 이후)';
+const whyOf=s=>s.ext&&s.label==='outro'?`분석 범위(${fmt(s.start)}) 밖 확장 구간 → 마지막 룩 유지 · allin1 재분석 필요`:LOOK_RULE[s.label].why;
 const FR = ENV.env.fps;
 function envAvg(k,a,b){const A=ENV.env[k],i=Math.floor(a*FR),j=Math.max(i+1,Math.floor(b*FR));let s=0;for(let x=i;x<j&&x<A.length;x++)s+=A[x];return s/(j-i)}
 const ALL_RMS = envAvg('rms',0,DUR);
@@ -1570,7 +1572,7 @@ function buildSections(segs){
     s.i=i; s.color=SEC_COLOR[s.label]; s.bars=((s.end-s.start)/(4*60/BPM));
     s.st={rms:envAvg('rms',s.start,s.end),bass:envAvg('bass',s.start,s.end),vocal:envAvg('vocal',s.start,s.end),hi:envAvg('hi',s.start,s.end),drums:envAvg('drums',s.start,s.end)};
     const R=LOOK_RULE[s.label]; s.fx={...R.fx,...DEF2}; s.on={};FXK.concat(FXK2).forEach(f=>s.on[f.k]=true);s.sheet=i+1;s.ledSrc=[null,null,null,null];
-    s.lyMotion='inherit'; s.pat=R.pat; s.crowd=R.crowd; s.shot=R.shot; s.cam=R.cam; s.why=R.why;
+    s.lyMotion='inherit'; s.pat=R.pat; s.crowd=R.crowd; s.shot=R.shot; s.cam=R.cam; s.why=whyOf(s);
     const rel=(s.st.rms-ALL_RMS)/ALL_RMS; s.rel=rel;   // 곡 통계로 미세 보정: 평균보다 센 구간은 조도·펀치 가산
     s.fx.light=clamp(s.fx.light+rel*.5,.2,1); s.fx.punch=clamp(s.fx.punch+(s.st.bass-.65)*.6,0,1);
   });
@@ -1708,20 +1710,54 @@ function setClipVideo(id,file,o={}){ if(vidEls[id]){vidEls[id].pause&&vidEls[id]
   MEDIA[id]=file;const done=el=>{vidEls[id]=el;S.clipVid[id]=file.name;CLIPS[id].thumb=thumbOf(el);if(!o.silent)saveClip(id);renderLib();mediaNote()};
   if(file.type.startsWith('image/')){const im=new Image();im.onload=()=>done(im);im.src=URL.createObjectURL(file);return}
   const v=document.createElement('video');v.muted=true;v.loop=CLIPS[id].loop!==false;v.playsInline=true;v.src=URL.createObjectURL(file);v.addEventListener('loadeddata',()=>{v.play().catch(()=>{});done(v)},{once:true})}
-/* 미디어 저장 — IndexedDB(파일) + localStorage(구간 배정). 새로고침해도 유지, '미디어 초기화'로 비움 */
+/* 미디어 저장 — IndexedDB(파일). 새로고침해도 유지, '전체 초기화'로 비움 */
 let dbp=null;
 function db(){return dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('resona_media',1);r.onupgradeneeded=()=>r.result.createObjectStore('clips',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))}
 function dbTx(mode,fn){return db().then(d=>new Promise((res,rej)=>{const t=d.transaction('clips',mode),rq=fn(t.objectStore('clips'));t.oncomplete=()=>res(rq&&rq.result);t.onerror=()=>rej(t.error)}))}
 const dbPut=r=>dbTx('readwrite',s=>s.put(r)),dbDel=id=>dbTx('readwrite',s=>s.delete(id)),dbAll=()=>dbTx('readonly',s=>s.getAll()),dbClear=()=>dbTx('readwrite',s=>s.clear());
 function saveClip(id){const c=CLIPS[id],f=MEDIA[id];if(!c||!f||!storeOK)return;dbPut({id,blob:f,fname:f.name,type:f.type,user:!!c.user,n:c.n,tag:c.tag,name:c.name,color:c.color,fit:c.fit,loop:c.loop}).catch(()=>{storeOK=false;mediaNote()})}
-function saveAssign(){try{localStorage.setItem('resona_assign',JSON.stringify(Object.fromEntries(EVENTS.map(e=>[e.s.toFixed(2),e.clip]))))}catch(e){}}
-function saveLed(){try{localStorage.setItem('resona_led',JSON.stringify(Object.fromEntries(SEC.filter(x=>x.ledSrc&&x.ledSrc.some(Boolean)).map(x=>[x.start.toFixed(2),x.ledSrc]))))}catch(e){}}
-function applyLed(){try{const m=JSON.parse(localStorage.getItem('resona_led')||'null');if(m)SEC.forEach(x=>{const v=m[x.start.toFixed(2)];if(v)x.ledSrc=v.map(id=>id&&CLIPS[id]?id:null)})}catch(e){}}
-function applyAssign(){try{const m=JSON.parse(localStorage.getItem('resona_assign')||'null');if(m)EVENTS.forEach(e=>{const k=m[e.s.toFixed(2)];if(k&&CLIPS[k])e.clip=k})}catch(e){}}
+/* 편집값 저장 — localStorage. 구간·클립 편집은 분석 소스(구간 구조)마다 따로, 가사 시각은 곡 공통.
+   바뀐 것이 있을 때만 0.5초마다 + 페이지를 떠날 때 + 소스를 바꾸기 직전에 기록 */
+const STORE='resona_state',LYSTORE='resona_lyrics';
+let stateReady=false,srcKey='',lastSnap='',lastLy='';   // stateReady: 미디어 복원 전에는 읽지도 쓰지도 않음
+const readJson=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}};
+const writeText=(k,v)=>{try{localStorage.setItem(k,v);return true}catch(e){return false}};
+const snapState=()=>JSON.stringify({
+  sec:SEC.map(s=>({start:s.start,end:s.end,label:s.label,ext:!!s.ext,fx:s.fx,on:s.on,sheet:s.sheet,ledSrc:s.ledSrc,lyMotion:s.lyMotion,pat:s.pat,crowd:s.crowd,shot:s.shot,cam:s.cam,rx:s.why.includes(REACT_NOTE)})),
+  ev:EVENTS.map(e=>({s:e.s,e:e.e,clip:e.clip,ext:!!e.ext}))});
+const snapLy=()=>JSON.stringify(LY.map(l=>[l.t,l.e]));
+function flushState(){if(!stateReady)return;
+  const ly=snapLy();if(ly!==lastLy&&writeText(LYSTORE,ly))lastLy=ly;
+  const snap=snapState();if(snap===lastSnap)return;
+  const all=readJson(STORE)||{};all[srcKey]=JSON.parse(snap);if(writeText(STORE,JSON.stringify(all)))lastSnap=snap}
+function applySnap(p){if(!p||!Array.isArray(p.sec)||!p.sec.length||!Array.isArray(p.ev)||!p.ev.length)return false;
+  const allOn=Object.fromEntries(FXK.concat(FXK2).map(f=>[f.k,true]));
+  SEC=p.sec.map(({rx,...v})=>{const label=SEC_COLOR[v.label]?v.label:'verse';
+    const x={...v,label,fx:{...LOOK_RULE[label].fx,...DEF2,...v.fx},on:{...allOn,...v.on},ledSrc:[0,1,2,3].map(i=>{const id=(v.ledSrc||[])[i];return id&&CLIPS[id]?id:null})};
+    x.why=whyOf(x)+(rx?REACT_NOTE:'');return x});
+  EVENTS=p.ev.map(e=>({...e,clip:CLIPS[e.clip]?e.clip:'C1'}));reindexSec();return true}
+/* 이전 버전 저장값(구간 시작 시각 → 클립 / LED) 옮겨오기 — 시각이 과반 일치하는 소스에만 */
+function applyLegacy(){const a=readJson('resona_assign'),l=readJson('resona_led');let hit=false;
+  const fits=(m,list)=>{const keys=Object.keys(m||{}),at=new Set(list);return keys.length>0&&keys.filter(k=>at.has(k)).length*2>keys.length};
+  const aOk=fits(a,EVENTS.map(e=>e.s.toFixed(2)));
+  if(aOk)EVENTS.forEach(e=>{const k=a[e.s.toFixed(2)];if(k&&CLIPS[k]){e.clip=k;hit=true}});
+  if(aOk||(!a&&fits(l,SEC.map(x=>x.start.toFixed(2)))))SEC.forEach(x=>{const v=l&&l[x.start.toFixed(2)];if(v){x.ledSrc=v.map(id=>id&&CLIPS[id]?id:null);hit=true}});
+  return hit}
+function restoreSaved(){if(!stateReady)return;const saved=(readJson(STORE)||{})[srcKey],base=snapState();
+  try{if(saved){applySnap(saved);lastSnap=snapState()}else{lastSnap=base;if(applyLegacy())flushState()}}
+  catch(e){console.warn('저장값 복원 실패',e);applySnap(JSON.parse(base));lastSnap=base}}
+/* 분석 결과를 새로 깐 직후 호출: 이 구조의 저장값이 있으면 덮어씀 */
+function openSource(){srcKey=SEC.map(x=>x.start.toFixed(2)+':'+x.label).join(',');restoreSaved()}
+/* 지운 사용자 클립은 다른 소스의 저장값에서도 제거 — 같은 번호가 새 파일에 다시 쓰이므로 */
+function scrubClip(id){const all=readJson(STORE);if(!all)return;
+  Object.values(all).forEach(p=>{p.ev.forEach(e=>{if(e.clip===id)e.clip='C1'});p.sec.forEach(x=>{x.ledSrc=(x.ledSrc||[]).map(v=>v===id?null:v)})});writeText(STORE,JSON.stringify(all))}
+(()=>{const m=readJson(LYSTORE);if(Array.isArray(m)&&m.length===LY.length&&m.every(v=>Array.isArray(v)&&Number.isFinite(v[0])&&Number.isFinite(v[1])))m.forEach((v,i)=>{LY[i].t=v[0];LY[i].e=v[1]});lastLy=snapLy()})();
+setInterval(flushState,500);addEventListener('pagehide',flushState);document.addEventListener('visibilitychange',flushState);
 async function restoreMedia(){try{const all=await dbAll();all.sort((a,b)=>(a.n||0)-(b.n||0));
     for(const r of all){if(r.user&&!CLIPS[r.id])CLIPS[r.id]={tag:r.tag,name:r.name,color:r.color,user:true,n:r.n};if(!CLIPS[r.id])continue;
       Object.assign(CLIPS[r.id],{fit:r.fit,loop:r.loop});if(r.user)CLIPS[r.id].name=r.name;setClipVideo(r.id,new File([r.blob],r.fname||r.id,{type:r.type}),{silent:true})}
-    applyAssign();applyLed();renderLib();renderInspector();drawTL()}catch(e){storeOK=false}mediaNote()}
+    }catch(e){storeOK=false}
+  stateReady=true;restoreSaved();S.sel=secAt(S.t);S.selEv=evAt(S.t);lastSecIdx=-1;paintPads();renderLib();renderInspector();drawTL();mediaNote()}
 const UCOL=['#C58CFF','#FF8FB1','#7FD7D0','#FFB26B','#9BE564','#6FA8FF'],FITN={tile:'복제·맞춤',tilefill:'복제·채움',contain:'이어·맞춤',cover:'이어·채움'};
 function mediaNote(){const n=Object.keys(MEDIA).length,el=$('mediaNote');if(!el)return;
   if(!storeOK){el.textContent=`미디어 ${n}개 · 이 브라우저는 저장이 막혀 있어 세션 동안만 유지됩니다.`;return}
@@ -1732,7 +1768,7 @@ function addMedia(files,assign){const fs=[...files].filter(f=>/^(video|image)\//
     CLIPS[id]={tag:`CLIP(${4+n})`,name:f.name.replace(/\.[^.]+$/,''),color:UCOL[(n-1)%UCOL.length],user:true,n};setClipVideo(id,f);first=first||id});
   if(assign&&first)pickClipFor(first);renderLib();renderInspector();drawTL();mediaNote();return first}
 function removeClip(id){const c=CLIPS[id];if(!c)return;if(vidEls[id]){vidEls[id].pause&&vidEls[id].pause();if(vidEls[id].src)URL.revokeObjectURL(vidEls[id].src);delete vidEls[id]}delete MEDIA[id];delete S.clipVid[id];delete c.thumb;dbDel(id).catch(()=>{});
-  if(c.user){EVENTS.forEach(e=>{if(e.clip===id)e.clip='C1'});SEC.forEach(x=>{x.ledSrc=(x.ledSrc||[]).map(v=>v===id?null:v)});delete CLIPS[id]}saveAssign();saveLed();renderLib();renderInspector();drawTL();mediaNote()}
+  if(c.user){EVENTS.forEach(e=>{if(e.clip===id)e.clip='C1'});SEC.forEach(x=>{x.ledSrc=(x.ledSrc||[]).map(v=>v===id?null:v)});delete CLIPS[id];scrubClip(id)}renderLib();renderInspector();drawTL();mediaNote()}
 function clipAction(k,a){const c=CLIPS[k];if(!c)return;
   if(a==='ren'){const n=prompt('클립 이름',c.name);if(n&&n.trim()){c.name=n.trim();saveClip(k)}}
   else if(a==='fit'){const o=['tile','tilefill','contain','cover'];c.fit=o[(o.indexOf(c.fit||'tile')+1)%4];saveClip(k)}
@@ -1966,9 +2002,9 @@ $('btnAddMedia').onclick=()=>{addAssign=false;$('addFile').click()};$('btnAddMed
 $('addFile').onchange=e=>{addMedia(e.target.files,addAssign);e.target.value=''};
 $('lib').addEventListener('dragover',e=>{e.preventDefault();$('lib').classList.add('dropall')});$('lib').addEventListener('dragleave',()=>$('lib').classList.remove('dropall'));
 $('lib').addEventListener('drop',e=>{e.preventDefault();$('lib').classList.remove('dropall');addMedia(e.dataTransfer.files,false)});
-$('btnResetMedia').onclick=async()=>{if(!confirm('넣은 미디어와 구간 배정을 모두 지우고 처음 상태로 되돌립니다. 계속할까요?'))return;try{await dbClear()}catch(e){}try{localStorage.removeItem('resona_assign');localStorage.removeItem('resona_led')}catch(e){}location.reload()};
+$('btnResetMedia').onclick=async()=>{if(!confirm('넣은 미디어, 구간 편집(클립·LED·노브·분절·송출 시트), 가사 시각을 모두 지우고 처음 상태로 되돌립니다. 계속할까요?'))return;stateReady=false;try{await dbClear()}catch(e){}try{[STORE,LYSTORE,'resona_assign','resona_led'].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()};
 $('clipFile').onchange=e=>{const f=e.target.files[0];if(f&&S.dropTarget)setClipVideo(S.dropTarget,f);e.target.value=''};
-function pickClipFor(k){ if(S.selEv){S.selEv.clip=k;saveAssign();renderInspector();drawTL()}}
+function pickClipFor(k){ if(S.selEv){S.selEv.clip=k;renderInspector();drawTL()}}
 /* lyrics list */
 function renderLy(){ $('lyCount').textContent=LY.length+' LINES · EST';$('lyl').innerHTML=LY.map((l,i)=>`<div class="ly ${l.rep?'rep':''}" data-i="${i}"><time>${fmt(l.t)}</time><span>${l.text}</span></div>`).join('');
   document.querySelectorAll('#lyl .ly').forEach(el=>el.onclick=()=>{setTime(LY[+el.dataset.i].t)})}
@@ -2034,11 +2070,11 @@ let ledTarget=0;
 function renderLedSrc(){const s=S.sel;if(!s.ledSrc)s.ledSrc=[null,null,null,null];
   const opts='<option value="">구간 클립 따름</option>'+Object.entries(CLIPS).map(([k,c])=>`<option value="${k}">${c.tag} ${c.name.slice(0,16)}${vidEls[k]?' ●':''}</option>`).join('');
   $('ledSrcBox').innerHTML=[0,1,2,3].map(i=>`<div class="sc" style="grid-template-columns:42px 1fr 54px"><label>LED ${i+1}</label><select data-i="${i}">${opts}</select><button class="pill" data-i="${i}">+ 파일</button></div>`).join('');
-  document.querySelectorAll('#ledSrcBox select').forEach(sel=>{sel.value=s.ledSrc[+sel.dataset.i]||'';sel.onchange=()=>{s.ledSrc[+sel.dataset.i]=sel.value||null;saveLed()}});
+  document.querySelectorAll('#ledSrcBox select').forEach(sel=>{sel.value=s.ledSrc[+sel.dataset.i]||'';sel.onchange=()=>{s.ledSrc[+sel.dataset.i]=sel.value||null}});
   document.querySelectorAll('#ledSrcBox button').forEach(b=>b.onclick=()=>{ledTarget=+b.dataset.i;$('ledFile').click()})}
-$('ledFile').onchange=e=>{const id=addMedia(e.target.files,false);e.target.value='';if(id){S.sel.ledSrc[ledTarget]=id;saveLed();renderInspector()}};
-$('ledAllSec').onclick=()=>{SEC.forEach(x=>x.ledSrc=[...S.sel.ledSrc]);saveLed();renderInspector()};
-$('ledClear').onclick=()=>{S.sel.ledSrc=[null,null,null,null];saveLed();renderInspector()};
+$('ledFile').onchange=e=>{const id=addMedia(e.target.files,false);e.target.value='';if(id){S.sel.ledSrc[ledTarget]=id;renderInspector()}};
+$('ledAllSec').onclick=()=>{SEC.forEach(x=>x.ledSrc=[...S.sel.ledSrc]);renderInspector()};
+$('ledClear').onclick=()=>{S.sel.ledSrc=[null,null,null,null];renderInspector()};
 /* CUE SHEET — 송출 시트 번호 ↔ 음악 구간(클립) 매칭 */
 function renderCue(){const dup={};SEC.forEach(s=>dup[s.sheet]=(dup[s.sheet]||0)+1);$('cueCount').textContent=SEC.length+' CUES';
   $('cueTbl').innerHTML='<tr class="h"><td>Q</td><td>SECTION</td><td>TIME</td><td>SHEET #</td><td>CLIPS</td></tr>'+SEC.map(s=>{const cl=[...new Set(EVENTS.filter(e=>e.s<s.end-.01&&e.e>s.start+.01).map(e=>CLIPS[e.clip].tag.replace(/[()]/g,'')))].join(' ');
@@ -2234,24 +2270,25 @@ setTimeout(sizeTL,300);
 
 /* ═══════════════ allin1 JSON 불러오기 ═══════════════
    allin1 출력 형식:  {bpm, beats:[s], downbeats:[s], beat_positions:[1..4], segments:[{start,end,label}]}  */
-function markReactive(from){const f=SEC.find(s=>s.start>=from-.5);REACT_T=f?f.start:DUR;SEC.forEach(s=>{if(s.start>=REACT_T-.5){s.crowd='auto';s.cam=1;s.fx.light=Math.max(s.fx.light,.95);s.why+=' · 반응형 구간(사용자 기획: 2:11 이후)'}})}
+function markReactive(from){const f=SEC.find(s=>s.start>=from-.5);REACT_T=f?f.start:DUR;SEC.forEach(s=>{if(s.start>=REACT_T-.5){s.crowd='auto';s.cam=1;s.fx.light=Math.max(s.fx.light,.95);s.why+=REACT_NOTE}})}
 const A1RUN=JSON.parse($('a1run').textContent),USER_EVENTS=EVENTS.map(e=>({...e}));
 function setSrcBtn(k){document.querySelectorAll('#srcSeg button').forEach(b=>b.classList.toggle('on',b.dataset.k===k))}
 function useRun(){loadAnalysis(A1RUN,'allin1 실행결과');setSrcBtn('run');
   $('mismatch').innerHTML='<b style="color:var(--cyan)">✓ 첨부 mp3(3:18)로 직접 실행</b> — BPM 150 · 485 beats · 122 downbeats. 사전 분석본과 비교: 앞 2분은 구간 간격이 같고 <b>1.03s 평행 이동</b>, 이후 구조는 다름(사전본은 2:41에서 끝남 → 편집본으로 추정).'}
-function usePre(){BPM=150;BEATLIST=null;BEATPOS=null;buildSections(ALLIN1.segments);EVENTS=USER_EVENTS.map(e=>({...e}));markReactive(131);S.sel=SEC[0];S.selEv=EVENTS[0];secVisible=true;
+function usePre(){flushState();BPM=150;BEATLIST=null;BEATPOS=null;buildSections(ALLIN1.segments);EVENTS=USER_EVENTS.map(e=>({...e}));markReactive(131);openSource();S.sel=SEC[0];S.selEv=EVENTS[0];secVisible=true;
   paintPads();
   PIPE[2][1]='사전 분석 이미지 · BPM 150 · 390 beats · 98 downbeats · 8 sections (편집본 2:41)';$('pipeSrc').textContent='사전 분석 이미지 (harmonix-all)';$('sBpm').textContent=150;setSrcBtn('pre');
   $('mismatch').innerHTML=`<b class="warn">⚠ 길이 불일치</b> — 분석본은 ${fmt(ALLIN1.analyzedEnd)}까지, 첨부 mp3는 ${fmt(DUR)}. ${fmt(ALLIN1.analyzedEnd)} 이후는 확장 구간(추정). 이 mp3로 실행한 결과와 1.03s 어긋남.`;
   lastSecIdx=-1;renderPipe();renderInspector();drawTL();applyLook(true)}
 function loadAnalysis(a,name){
   if(!a||!Array.isArray(a.segments)||!a.segments.length)throw new Error('segments 없음');
+  flushState();
   const segs=a.segments.filter(x=>!/^(start|end)$/.test(x.label)).map(x=>({start:+x.start,end:+x.end,label:x.label}));
   if(a.bpm)BPM=a.bpm; if(a.beats&&a.beats.length){BEATLIST=a.beats;BEATPOS=a.beat_positions||null}
   segs[0].start=0;if(segs[segs.length-1].end>DUR-5)segs[segs.length-1].end=DUR;
-  buildSections(segs);autoEvents();markReactive(125);S.sel=SEC[0];S.selEv=EVENTS[0];secVisible=true;
+  buildSections(segs);autoEvents();markReactive(125);const nSec=SEC.length;openSource();S.sel=SEC[0];S.selEv=EVENTS[0];secVisible=true;
   paintPads();
-  PIPE[2][1]=`${name||'JSON'} · BPM ${BPM} · ${(a.beats||[]).length||'?'} beats · ${(a.downbeats||[]).length||'?'} downbeats · ${SEC.length} sections`;
+  PIPE[2][1]=`${name||'JSON'} · BPM ${BPM} · ${(a.beats||[]).length||'?'} beats · ${(a.downbeats||[]).length||'?'} downbeats · ${nSec} sections`;
   $('pipeSrc').textContent='allin1 JSON · '+(name||'');$('sBpm').textContent=Math.round(BPM);
   const end=segs[segs.length-1].end;$('mismatch').innerHTML=Math.abs(end-DUR)>1?`<b class="warn">⚠ 길이 불일치</b> — JSON ${fmt(end)} / mp3 ${fmt(DUR)}`:`<b style="color:var(--cyan)">✓ 길이 일치</b> — JSON ${fmt(end)} / mp3 ${fmt(DUR)}`;
   lastSecIdx=-1;renderPipe();renderInspector();drawTL();applyLook(true)}
