@@ -2,6 +2,10 @@
 """Range 요청을 지원하는 간단한 서버 (오디오 탐색용) — 사용: python3 build/range_server.py 8765"""
 import http.server, os, re, sys
 class H(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # 다시 빌드한 화면이 바로 뜨도록: HTML 은 매번 새로 받고, 나머지는 쓰기 전에 서버에 확인
+        page = self.path.split('?')[0].split('#')[0].endswith(('.html', '/'))
+        self.send_header('Cache-Control', 'no-store' if page else 'no-cache'); super().end_headers()
     def send_head(self):
         rng = self.headers.get('Range'); path = self.translate_path(self.path)
         if not rng or not os.path.isfile(path): return super().send_head()
